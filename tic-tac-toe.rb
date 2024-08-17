@@ -44,3 +44,28 @@ class Grid
         return false
     end
 end
+
+
+class Human_Player
+    attr_accessor :symbol, :grid
+
+    def initialize(symbol, grid)
+        @symbol = symbol
+        @grid = grid
+    end
+
+    def turn
+        loop do
+            print "Choose the next coordinates (x,y): "
+            x, y = gets.chomp.split(",")
+            begin
+                x = Integer(x)
+                y = Integer(y)
+            rescue ArgumentError
+                puts "Error: Invalid coordinates"
+            else
+                break if grid.add_symbol(x, y, symbol)
+            end
+        end
+    end
+end
