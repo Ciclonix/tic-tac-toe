@@ -5,15 +5,15 @@ class Grid
         @symbols = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
     end
 
-    def add_symbol(x, y, symbol)
+    def add_symbol(x, y, symbol, human)
         if (x.between? 0,2 and y.between? 0,2)
             if symbols[y][x] == " "
                 symbols[y][x] = symbol
                 return true
             end
-            puts "Error: Coordinates already used" 
+            puts "Error: Coordinates already used" if human
         else
-            puts "Error: Invalid coordinates"
+            puts "Error: Invalid coordinates" if human
         end
         return false
     end
@@ -43,18 +43,32 @@ class Grid
                        [symbols[0][2], symbols[1][1], symbols[2][0]].uniq.size == 1)
         return false
     end
+
+    def full?
+        symbols.each do |row|
+            return false if row.include? " "
+        end
+        return true
+    end
 end
 
 
-class Human_Player
-    attr_accessor :symbol, :grid
+class Player
+    attr_accessor :symbol, :grid, :human
 
-    def initialize(symbol, grid)
+    def initialize(symbol, grid, human)
         @symbol = symbol
         @grid = grid
+        @human = human
     end
 
     def turn
+        unless grid.full?
+            human ? human_turn : computer_turn
+        end
+    end
+
+    def human_turn
         loop do
             print "Choose the next coordinates (x,y): "
             x, y = gets.chomp.split(",")
@@ -64,8 +78,16 @@ class Human_Player
             rescue ArgumentError
                 puts "Error: Invalid coordinates"
             else
-                break if grid.add_symbol(x, y, symbol)
+                break if grid.add_symbol(x, y, symbol, human)
             end
+        end
+    end
+
+    def computer_turn
+        loop do
+            x = rand(3)
+            y = rand(3)
+            break if grid.add_symbol(x, y, symbol, human)
         end
     end
 end
