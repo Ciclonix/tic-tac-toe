@@ -93,8 +93,30 @@ class Player
 end
 
 
-def start_game(players, grid)
-    winner = ""
+def start_game
+    grid = Grid.new()
+    winner = p1 = p2 = nil
+    loop do
+        print "How many human players? (0, 1, 2): "
+        num_of_players = gets.chomp
+        case num_of_players
+        when "0"
+            p1 = Player.new("x", grid, false)
+            p2 = Player.new("o", grid, false)
+            break
+        when "1"
+            p1 = Player.new("x", grid, true)
+            p2 = Player.new("o", grid, false)
+            break
+        when "2"
+            p1 = Player.new("x", grid, true)
+            p2 = Player.new("o", grid, true)
+            break
+        else 
+            puts "Error: Invalid number"
+        end
+    end
+    players = [p1, p2]
     grid.print_grid
     loop do
         players.each do |p|
@@ -109,9 +131,12 @@ def start_game(players, grid)
         end
         break if grid.full? or grid.check_win
     end
-    if winner == ""
+    if winner == nil
         puts "\nDraw!"
     else
         puts "\nPlayer using #{winner.symbol} won!"
     end
 end
+
+
+start_game()
