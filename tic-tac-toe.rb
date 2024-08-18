@@ -91,3 +91,27 @@ class Player
         end
     end
 end
+
+
+def start_game(players, grid)
+    winner = ""
+    grid.print_grid
+    loop do
+        players.each do |p|
+            puts "\nPlayer #{p.symbol} turn:"
+            p.turn
+            grid.print_grid
+            if grid.check_win
+                winner = p
+                break
+            end
+            break if grid.full?
+        end
+        break if grid.full? or grid.check_win
+    end
+    if winner == ""
+        puts "\nDraw!"
+    else
+        puts "\nPlayer using #{winner.symbol} won!"
+    end
+end
