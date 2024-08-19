@@ -5,15 +5,15 @@ class Grid
         @symbols = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
     end
 
-    def add_symbol(x, y, symbol, human)
-        if (x.between? 0,2 and y.between? 0,2)
-            if symbols[y][x] == " "
-                symbols[y][x] = symbol
+    def add_symbol(row, col, symbol, human)
+        if (row.between? 0,2) && (col.between? 0,2)
+            if symbols[col][row] == " "
+                symbols[col][row] = symbol
                 return true
             end
             puts "Error: Coordinates already used" if human
-        else
-            puts "Error: Invalid coordinates" if human
+        elsif human
+            puts "Error: Invalid coordinates"
         end
         return false
     end
@@ -21,25 +21,23 @@ class Grid
     def print_grid
         i = 0
         3.times do
-            unless i == 0 
-                puts "---|---|---"
-            end
+            puts "---|---|---" unless i.zero?
             puts " #{symbols[i][0]} | #{symbols[i][1]} | #{symbols[i][2]} "
             i += 1
         end
     end
 
     def check_win
-        for row in symbols
-            return true if row.uniq.size == 1 and row[0] != " "
+        symbols.each do |row|
+            return true if row.uniq.size == 1 && row[0] != " "
         end
         col = 0
         3.times do
-            return true if [symbols[0][col], symbols[1][col], symbols[2][col]].uniq.size == 1 and symbols[0][col] != " "
+            return true if [symbols[0][col], symbols[1][col], symbols[2][col]].uniq.size == 1 && symbols[0][col] != " "
             col += 1
         end
-        return true if symbols[1][1] != " " and \
-                       ([symbols[0][0], symbols[1][1], symbols[2][2]].uniq.size == 1 or \
+        return true if symbols[1][1] != " " && \
+                       ([symbols[0][0], symbols[1][1], symbols[2][2]].uniq.size == 1 || \
                        [symbols[0][2], symbols[1][1], symbols[2][0]].uniq.size == 1)
         return false
     end
@@ -63,38 +61,35 @@ class Player
     end
 
     def turn
-        unless grid.full?
-            human ? human_turn : computer_turn
-        end
+        return if grid.full?
+        human ? human_turn : computer_turn
     end
 
     def human_turn
         loop do
-            print "Choose the next coordinates (x,y): "
-            x, y = gets.chomp.split(",")
+            print "Choose the next coordinates (row,col): "
+            row, col = gets.chomp.split(",")
             begin
-                x = Integer(x)
-                y = Integer(y)
+                row = Integer(row)
+                col = Integer(col)
             rescue ArgumentError
                 puts "Error: Invalid coordinates"
             else
-                break if grid.add_symbol(x, y, symbol, human)
+                break if grid.add_symbol(row, col, symbol, human)
             end
         end
     end
 
     def computer_turn
         loop do
-            x = rand(3)
-            y = rand(3)
-            break if grid.add_symbol(x, y, symbol, human)
+            break if grid.add_symbol(rand(3), rand(3), symbol, human)
         end
     end
 end
 
 
 def start_game
-    grid = Grid.new()
+    grid = Grid.new
     winner = p1 = p2 = nil
     loop do
         print "How many human players? (0, 1, 2): "
@@ -112,7 +107,7 @@ def start_game
             p1 = Player.new("x", grid, true)
             p2 = Player.new("o", grid, true)
             break
-        else 
+        else
             puts "Error: Invalid number"
         end
     end
@@ -129,9 +124,9 @@ def start_game
             end
             break if grid.full?
         end
-        break if grid.full? or grid.check_win
+        break if grid.full? || grid.check_win
     end
-    if winner == nil
+    if winner.nil?
         puts "\nDraw!"
     else
         puts "\nPlayer using #{winner.symbol} won!"
