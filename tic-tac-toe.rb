@@ -30,7 +30,7 @@ class Grid
     end
 
     def line_tris?(symbols, idx)
-        return (symbols[idx].uniq.size == 1 && symbols[i][0] != " ") || \
+        return (symbols[idx].uniq.size == 1 && symbols[idx][0] != " ") || \
                (symbols[0][idx] != " " && \
                [symbols[0][idx], symbols[1][idx], symbols[2][idx]].uniq.size == 1)
     end
@@ -93,56 +93,58 @@ class Player
 end
 
 
-def input_players(grid)
-    p1 = p2 = nil
-    loop do
-        print "How many human players? (0, 1, 2): "
-        players_num = gets.chomp
-        case players_num
-        when "0"
-            p1 = Player.new("x", grid, false)
-            p2 = Player.new("o", grid, false)
-            break
-        when "1"
-            p1 = Player.new("x", grid, true)
-            p2 = Player.new("o", grid, false)
-            break
-        when "2"
-            p1 = Player.new("x", grid, true)
-            p2 = Player.new("o", grid, true)
-            break
+class Game
+    attr_accessor :grid
+
+    def start_game
+        @grid = Grid.new
+        winner = play
+        if winner.nil?
+            puts "\nDraw!"
         else
-            puts "Error: Invalid number"
+            puts "\nPlayer #{winner.symbol} won!"
         end
     end
-    return [p1, p2]
-end
 
+    def input_players
+        p1 = p2 = nil
+        loop do
+            print "How many human players? (0, 1, 2): "
+            players_num = gets.chomp
+            case players_num
+            when "0"
+                p1 = Player.new("x", grid, false)
+                p2 = Player.new("o", grid, false)
+                break
+            when "1"
+                p1 = Player.new("x", grid, true)
+                p2 = Player.new("o", grid, false)
+                break
+            when "2"
+                p1 = Player.new("x", grid, true)
+                p2 = Player.new("o", grid, true)
+                break
+            else
+                puts "Error: Invalid number"
+            end
+        end
+        return [p1, p2]
+    end
 
-def play_game(grid, players)
-    grid.print_grid
-    loop do
-        players.each do |p|
-            puts "\nPlayer #{p.symbol} turn:"
-            p.turn
-            grid.print_grid
-            return p if grid.win?
-            return nil if grid.full?
+    def play
+        players = input_players
+        grid.print_grid
+        loop do
+            players.each do |p|
+                puts "\nPlayer #{p.symbol} turn:"
+                p.turn
+                grid.print_grid
+                return p if grid.win?
+                return nil if grid.full?
+            end
         end
     end
 end
 
 
-def start_game
-    grid = Grid.new
-    players = input_players(grid)
-    winner = play_game(grid, players)
-    if winner.nil?
-        puts "\nDraw!"
-    else
-        puts "\nPlayer #{winner.symbol} won!"
-    end
-end
-
-
-start_game
+Game.new.start_game
