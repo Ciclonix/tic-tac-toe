@@ -29,19 +29,23 @@ class Grid
         end
     end
 
+    def line_tris?(symbols, idx)
+        return (symbols[idx].uniq.size == 1 && symbols[i][0] != " ") || \
+               (symbols[0][idx] != " " && \
+               [symbols[0][idx], symbols[1][idx], symbols[2][idx]].uniq.size == 1)
+    end
+
+    def diagonal_tris?(symbols)
+        return symbols[1][1] != " " && \
+               ([symbols[0][0], symbols[1][1], symbols[2][2]].uniq.size == 1 || \
+               [symbols[0][2], symbols[1][1], symbols[2][0]].uniq.size == 1)
+    end
+
     def win?
-        symbols.each do |row|
-            return true if row.uniq.size == 1 && row[0] != " "
+        symbols.each_index do |i|
+            return true if line_tris?(symbols, i)
         end
-        col = 0
-        3.times do
-            return true if [symbols[0][col], symbols[1][col], symbols[2][col]].uniq.size == 1 && symbols[0][col] != " "
-            col += 1
-        end
-        return true if symbols[1][1] != " " && \
-                       ([symbols[0][0], symbols[1][1], symbols[2][2]].uniq.size == 1 || \
-                       [symbols[0][2], symbols[1][1], symbols[2][0]].uniq.size == 1)
-        return false
+        return diagonal_tris?(symbols)
     end
 
     def full?
@@ -136,9 +140,9 @@ def start_game
     if winner.nil?
         puts "\nDraw!"
     else
-        puts "\nPlayer using #{winner.symbol} won!"
+        puts "\nPlayer #{winner.symbol} won!"
     end
 end
 
 
-start_game()
+start_game
