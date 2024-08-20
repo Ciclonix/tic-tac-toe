@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Grid
     attr_accessor :symbols
 
@@ -7,8 +9,8 @@ class Grid
 
     def add_symbol(row, col, symbol, human)
         if (row.between? 0,2) && (col.between? 0,2)
-            if symbols[col][row] == " "
-                symbols[col][row] = symbol
+            if symbols[row][col] == " "
+                symbols[row][col] = symbol
                 return true
             end
             puts "Error: Coordinates already used" if human
@@ -27,7 +29,7 @@ class Grid
         end
     end
 
-    def check_win
+    def win?
         symbols.each do |row|
             return true if row.uniq.size == 1 && row[0] != " "
         end
@@ -61,7 +63,6 @@ class Player
     end
 
     def turn
-        return if grid.full?
         human ? human_turn : computer_turn
     end
 
@@ -88,13 +89,12 @@ class Player
 end
 
 
-def start_game
-    grid = Grid.new
-    winner = p1 = p2 = nil
+def input_players(grid)
+    p1 = p2 = nil
     loop do
         print "How many human players? (0, 1, 2): "
-        num_of_players = gets.chomp
-        case num_of_players
+        players_num = gets.chomp
+        case players_num
         when "0"
             p1 = Player.new("x", grid, false)
             p2 = Player.new("o", grid, false)
@@ -111,21 +111,28 @@ def start_game
             puts "Error: Invalid number"
         end
     end
-    players = [p1, p2]
+    return [p1, p2]
+end
+
+
+def play_game(grid, players)
     grid.print_grid
     loop do
         players.each do |p|
             puts "\nPlayer #{p.symbol} turn:"
             p.turn
             grid.print_grid
-            if grid.check_win
-                winner = p
-                break
-            end
-            break if grid.full?
+            return p if grid.win?
+            return nil if grid.full?
         end
-        break if grid.full? || grid.check_win
     end
+end
+
+
+def start_game
+    grid = Grid.new
+    players = input_players(grid)
+    winner = play_game(grid, players)
     if winner.nil?
         puts "\nDraw!"
     else
