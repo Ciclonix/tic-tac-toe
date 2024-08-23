@@ -42,16 +42,12 @@ class Grid
     end
 
     def win?
-        symbols.each_index do |i|
-            return true if line_tris?(symbols, i)
-        end
+        symbols.each_index { |i| return true if line_tris?(symbols, i) }
         return diagonal_tris?(symbols)
     end
 
     def full?
-        symbols.each do |row|
-            return false if row.include? " "
-        end
+        symbols.each { |row| return false if row.include? " " }
         return true
     end
 end
@@ -71,17 +67,15 @@ class Player
     end
 
     def human_turn
-        loop do
+        begin
             print "Choose the next coordinates (row,col): "
             row, col = gets.chomp.split(",")
-            begin
-                row = Integer(row)
-                col = Integer(col)
-            rescue ArgumentError
-                puts "Error: Invalid coordinates"
-            else
-                break if grid.add_symbol(row, col, symbol, human)
-            end
+            row = Integer(row)
+            col = Integer(col)
+            raise ArgumentError unless grid.add_symbol(row, col, symbol, human)
+        rescue ArgumentError
+            puts "Error: Invalid coordinates"
+            retry
         end
     end
 
@@ -108,25 +102,25 @@ class Game
 
     def input_players
         p1 = p2 = nil
-        loop do
+        begin
             print "How many human players? (0, 1, 2): "
             players_num = gets.chomp
             case players_num
             when "0"
                 p1 = Player.new("x", grid, false)
                 p2 = Player.new("o", grid, false)
-                break
             when "1"
                 p1 = Player.new("x", grid, true)
                 p2 = Player.new("o", grid, false)
-                break
             when "2"
                 p1 = Player.new("x", grid, true)
                 p2 = Player.new("o", grid, true)
-                break
             else
-                puts "Error: Invalid number"
+                raise ArgumentError
             end
+        rescue ArgumentError
+            puts "Error: Invalid number"
+            retry
         end
         return [p1, p2]
     end
